@@ -13,7 +13,7 @@ const genericGet = async (route: string) => {
       },
     });
 
-    return response.data;
+    return response;
   } catch (error: any) {
     console.error('Error calling the API:', error.message);
     throw error;
