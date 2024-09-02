@@ -19,12 +19,12 @@ const genericGet = async (route: string) => {
   }
 }
 
-const searchSubscriptionByExternalReference = async (externalReference: string) => {
+const getSubscriptionById = async (preapproval_id: string) => {
 	try {
-		const response = await genericGet(`${routes.subscription_search}?extRef=${externalReference}`);
-		return response;
+		const response = await genericGet(`${routes.subscription}/${preapproval_id}`);
+		return response.data;
 	} catch (error: any) {
-		console.error('Error searching the subscription:', error.message);
+		console.error('Error getSubscriptionById:', error.message);
 		throw error;
 	}
 }
@@ -56,21 +56,18 @@ export const receivePaymentData = async (
   ItemsService: any, 
 	getSchema: any, 
 ) => {
-	const status = req.query.status;
-	const externalReference = req.query.external_reference;
-  console.log('status--->', status);
-  console.log('externalReference--->', externalReference);
+	const preapproval_id = req.query.preapproval_id;
+  console.log('preapproval_id--->', preapproval_id);
 
-	const subscription = await searchSubscriptionByExternalReference(externalReference);
+	const subscription = await getSubscriptionById(preapproval_id);
   console.log('subscription--->', subscription);
 
-  if (!subscription || subscription.length === 0) {
+  if (!subscription) {
     res.redirect(`criptodery://checkout?status=error`);
     return;
   } else {
-    const subscriptionId = subscription[0].id;
-    await saveSubscriptionId(res, ItemsService, getSchema, subscriptionId, externalReference);
-    res.redirect(`criptodery://checkout?status=${status}`);
+    await saveSubscriptionId(res, ItemsService, getSchema, subscription.id, subscription.externalReference);
+    res.redirect(`criptodery://checkout?status=${subscription.status}`);
     return;
   }
 }
