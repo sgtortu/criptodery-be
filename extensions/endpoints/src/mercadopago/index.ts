@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { routes } from './routes';
+import 'dotenv/config'
 
 const genericGet = async (route: string) => {
   try {
@@ -42,6 +43,7 @@ const saveSubscriptionId = async (
     const usersService = new ItemsService('directus_users', { schema });
     await usersService.updateOne(userId, {
       subscription_id: subscriptionId,
+      role: process.env.PREMIUM_ROLE_ID,
     });
     return;
   } catch (error) {
